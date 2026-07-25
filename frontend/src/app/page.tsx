@@ -134,6 +134,67 @@ export default function HomePage() {
           </section>
         )}
 
+        {/* --- NEW SECTION: Top Universities Grid --- */}
+        {featured.length > 0 && (
+          <section className="max-w-[1260px] mx-auto px-4 sm:px-6 py-10 mb-8">
+            <div className="flex items-end justify-between gap-4 mb-7 flex-wrap">
+              <div>
+                <h2 className="text-[26px] font-extrabold text-ink-900">Top Online Universities</h2>
+                <p className="text-slate-500 text-[14.5px] mt-1">Compare and choose the best university for your career</p>
+              </div>
+              <Link href="/universities" className="text-primary-600 font-bold text-sm hover:underline">
+                View All Universities →
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {featured.map((u) => {
+                const backendUrl = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:5000';
+                const logoPath = u.logo
+                  ? (u.logo.startsWith('http') ? u.logo : `${backendUrl}${u.logo.startsWith('/') ? '' : '/'}${u.logo}`)
+                  : '/images/logo-192.png';
+
+                return (
+                  <Link
+                    key={u.id}
+                    href={`/universities/${u.slug}`}
+                    className="bg-white border border-slate-200 rounded-2xl p-5 hover:border-primary-400 hover:shadow-card transition-all group flex flex-col"
+                  >
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="w-16 h-16 bg-slate-50 rounded-xl p-2.5 border border-slate-100 flex items-center justify-center overflow-hidden">
+                        <img src={logoPath} alt={u.name} className="object-contain w-full h-full" />
+                      </div>
+                      <div className="bg-amber-100 text-amber-700 text-[13px] font-bold px-2.5 py-1 rounded-md flex items-center gap-1">
+                        ⭐ {u.rating}
+                      </div>
+                    </div>
+
+                    <h3 className="font-bold text-[17px] text-ink-900 group-hover:text-primary-600 transition-colors line-clamp-1">
+                      {u.name}
+                    </h3>
+                    <p className="text-slate-500 text-[13.5px] mt-1.5 flex items-center gap-1.5">
+                      📍 {u.location || 'Online / Distance'}
+                    </p>
+
+                    <div className="mt-6 pt-4 flex items-center justify-between border-t border-slate-100">
+                      <div className="text-[13.5px]">
+                        <span className="text-slate-500">Avg. Fees: </span>
+                        <span className="font-extrabold text-ink-900">
+                          ₹{u.avgFees ? u.avgFees.toLocaleString('en-IN') : 'N/A'}
+                        </span>
+                      </div>
+                      <span className="text-primary-600 text-[13.5px] font-bold group-hover:translate-x-1 transition-transform inline-block">
+                        Explore →
+                      </span>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </section>
+        )}
+        {/* --- END OF NEW SECTION --- */}
+
         <CourseExplorer />
         <CTABanner />
         <StatsStrip />
