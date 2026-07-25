@@ -1,0 +1,62 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { Newspaper } from 'lucide-react';
+import { AnnouncementBar } from '@/components/layout/AnnouncementBar';
+import { Header } from '@/components/layout/Header';
+import { Footer } from '@/components/layout/Footer';
+import { CardSkeleton } from '@/components/ui/LoadingSpinner';
+import api, { resolveFileUrl } from '@/lib/api';
+import type { BlogPost, PaginatedResponse } from '@/types';
+import { formatDate } from '@/lib/utils';
+
+export default function BlogsPage() {
+  const [posts, setPosts] = useState<BlogPost[] | null>(null);
+
+  useEffect(() => {
+    api.get<PaginatedResponse<BlogPost>>('/blogs', { limit: 24 }).then((d) => setPosts(d.items)).catch(() => setPosts([]));
+  }, []);
+
+  return (
+    <>
+      <AnnouncementBar />
+      <Header />
+      <main>
+        <div className="bg-slate-50 border-b border-slate-200 py-7">
+          <div className="max-w-[1260px] mx-auto px-6">
+            <p className="text-[12px] text-slate-500 mb-2"><Link href="/" className="hover:text-primary-600">Home</Link> / Blog</p>
+            <h1 className="text-[26px] font-extrabold text-ink-900 mb-1">Latest Education Blogs</h1>
+            <p className="text-slate-600 text-[14.5px]">Guides, career advice, and everything about choosing the right university.</p>
+          </div>
+        </div>
+        <div className="max-w-[1260px] mx-auto px-6 py-10">
+          {posts === null ? (
+            <div className="grid sm:grid-cols-3 gap-5">{Array.from({ length: 6 }).map((_, i) => <CardSkeleton key={i} />)}</div>
+          ) : (
+            <div className="grid sm:grid-cols-3 gap-5">
+              {posts.map((p) => (
+                <Link key={p.id} href={`/blogs/${p.slug}`} className="bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-card hover:-translate-y-1 transition-all">
+                  <div className="aspect-[16/10] bg-gradient-to-br from-sky-100 to-violet-100 flex items-center justify-center overflow-hidden">
+                    {p.cover ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={resolveFileUrl(p.cover)} alt={p.title} className="w-full h-full object-cover" />
+                    ) : (
+                      <Newspaper size={28} className="text-primary-400" />
+                    )}
+                  </div>
+                  <div className="p-4">
+                    <span className="text-[11px] font-extrabold text-primary-600 uppercase tracking-wide">{p.category}</span>
+                    <h4 className="font-bold text-[14.5px] text-ink-900 mt-1.5 mb-2 leading-snug line-clamp-2">{p.title}</h4>
+                    <p className="text-[11.5px] text-slate-500">{formatDate(p.publishedAt)}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+      </main>
+      <Footer />
+    </>
+  );
+}
